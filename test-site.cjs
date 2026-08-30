@@ -27,6 +27,12 @@ assert.match(css, /\.page-stack\[aria-label\*="精煉篇"\] figure\{aspect-ratio
 assert.equal((html.match(/assets\/chapter-521\/refined-521-page-\d{2}\.png/g) || []).length, 15, '精煉篇應包含 15 頁完整內容');
 assert.match(html, /id="mini-player"/, '播放時應有常駐控制列');
 assert.match(css, /background:\s*#fbfaf5 !important/, '頁首應固定淺色背景');
+assert.match(css, /\.two-col>img\{aspect-ratio:662\/994/, '原圖文封面應預留比例，避免手機快速切換時位移');
+assert.match(css, /\.site-header \.brand\{font-size:1\.3rem/, '手機版系列名稱應提高字級');
+assert.match(css, /\.entry-nav>p\{margin-bottom:12px;font-size:1rem/, '手機版閱讀方式提示應提高字級');
+assert.match(css, /\.entry small\{font-size:\.8rem/, '手機版圓圈說明應提高字級');
+assert.match(css, /\.lyrics summary\{font-size:1\.06rem/, '歌詞入口應以次標題字級呈現');
+assert.match(css, /\.soul-site footer\{font-size:1\.02rem/, '作者資訊應以較易讀字級呈現');
 assert.match(js, /function setActiveEntry/, '入口選擇狀態應能隨段落更新');
 assert.match(js, /event\.preventDefault\(\)/, '閱讀入口應攔截原生錨點跳轉');
 assert.match(js, /function navigateToEntry/, '閱讀入口應在版面穩定後進行精確定位');
