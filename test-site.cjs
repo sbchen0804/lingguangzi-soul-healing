@@ -15,6 +15,10 @@ assert.ok(html.includes('<title>靈魂療癒系列｜第 521 章</title>'), '網
 assert.match(html, /id="entry-521"/, '首頁應提供三個閱讀入口');
 assert.match(html, /id="original-reader"/, '原圖文應能在頁內閱讀');
 assert.match(html, /id="song-521"/, '詩歌呈現應有專屬段落');
+assert.match(html, /<details class="lyrics"/, '詩歌播放器下方應提供可展開的歌詞閱讀區');
+assert.match(html, /<summary>閱讀歌詞<\/summary>/, '歌詞閱讀區應有清楚的開啟標示');
+assert.match(html, /我要追著死亡地活著/, '歌詞閱讀區應收錄原始歌詞內容');
+assert.match(css, /\.lyrics/, '歌詞閱讀區應有專屬閱讀樣式');
 assert.match(html, /id="refined-521"/, '精煉篇應有專屬段落');
 assert.match(html, /線上閱讀原圖文/, '原圖文應以線上閱讀為主');
 assert.match(html, /assets\/chapter-521\/original-521-page-05\.png/, '原圖文應包含修正版第 5 頁');
