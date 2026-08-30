@@ -22,10 +22,16 @@ assert.match(css, /\.lyrics/, '歌詞閱讀區應有專屬閱讀樣式');
 assert.match(html, /id="refined-521"/, '精煉篇應有專屬段落');
 assert.match(html, /線上閱讀原圖文/, '原圖文應以線上閱讀為主');
 assert.match(html, /assets\/chapter-521\/original-521-page-05\.png/, '原圖文應包含修正版第 5 頁');
+assert.match(css, /\.page-stack\[aria-label\*="原圖文"\] figure\{aspect-ratio:850\/1100/, '原圖文頁面應預留正確圖片比例');
+assert.match(css, /\.page-stack\[aria-label\*="精煉篇"\] figure\{aspect-ratio:1912\/1067/, '精煉篇頁面應預留正確圖片比例');
 assert.equal((html.match(/assets\/chapter-521\/refined-521-page-\d{2}\.png/g) || []).length, 15, '精煉篇應包含 15 頁完整內容');
 assert.match(html, /id="mini-player"/, '播放時應有常駐控制列');
 assert.match(css, /background:\s*#fbfaf5 !important/, '頁首應固定淺色背景');
 assert.match(js, /function setActiveEntry/, '入口選擇狀態應能隨段落更新');
+assert.match(js, /event\.preventDefault\(\)/, '閱讀入口應攔截原生錨點跳轉');
+assert.match(js, /function navigateToEntry/, '閱讀入口應在版面穩定後進行精確定位');
+assert.match(js, /history\.pushState\(null, '', hash\)/, '閱讀入口應保留可分享的章節網址');
+assert.match(js, /requestAnimationFrame/, '閱讀入口應在版面更新後再定位');
 assert.match(js, /addEventListener\('pagehide'/, '離開頁面時音訊應停止');
 
 console.log('PASS: standalone chapter 521 website has all primary reading flows and controls.');

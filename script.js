@@ -8,7 +8,18 @@
       entry.toggleAttribute('aria-current', selected);
     });
   }
-  entries.forEach(entry => entry.addEventListener('click', () => window.setTimeout(setActiveEntry, 0)));
+  function navigateToEntry(hash) {
+    const target = document.querySelector(hash);
+    if (!target) return;
+    history.pushState(null, '', hash);
+    setActiveEntry();
+    const scrollToTarget = () => window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY, behavior: 'smooth' });
+    window.requestAnimationFrame(() => window.requestAnimationFrame(scrollToTarget));
+  }
+  entries.forEach(entry => entry.addEventListener('click', event => {
+    event.preventDefault();
+    navigateToEntry(entry.getAttribute('href'));
+  }));
   window.addEventListener('hashchange', setActiveEntry);
   setActiveEntry();
 
