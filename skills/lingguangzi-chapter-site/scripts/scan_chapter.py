@@ -6,19 +6,25 @@ import argparse
 import hashlib
 import json
 import re
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 import sys
 
 try:
-    from chapter_types import Issue, write_json
+    from chapter_types import write_json
 except ImportError:  # pragma: no cover - supports running this file directly
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from chapter_types import Issue, write_json
+    from chapter_types import write_json
 
 
 SUPPORTED = {".png", ".jpg", ".jpeg", ".pdf", ".docx", ".txt", ".mp3", ".m4a", ".mp4"}
-_CHAPTER_RE = re.compile(r"(?:chapter[- _]?|第\s*)?(\d+)\s*(?:章)?", re.IGNORECASE)
+_ZH_CHAPTER_RE = re.compile(r"第\s*(\d+)\s*章")
+_EN_CHAPTER_RE = re.compile(r"chapter[-_ ]?(\d+)", re.IGNORECASE)
+
+
+def _normalize_path(value: str) -> str:
+    return unicodedata.normalize("NFC", value.replace("\\", "/"))
 
 
 def role_candidates(relative_path: str) -> list[str]:
@@ -63,10 +69,10 @@ def inventory_digest(files: list[dict]) -> str:
 
 
 def _chapter_number(root: Path) -> int:
-    match = _CHAPTER_RE.search(root.name)
-    if not match:
+    markers = _ZH_CHAPTER_RE.findall(root.name) + _EN_CHAPTER_RE.findall(root.name)
+    if len(markers) != 1:
         raise ValueError(f"cannot determine chapter number from directory: {root}")
-    return int(match.group(1))
+    return int(markers[0])
 
 
 def scan_chapter(root: Path) -> dict:
@@ -77,7 +83,7 @@ def scan_chapter(root: Path) -> dict:
     for path in root.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in SUPPORTED:
             continue
-        relative = path.relative_to(root).as_posix()
+        relative = _normalize_path(path.relative_to(root).as_posix())
         stat = path.stat()
         candidates = role_candidates(relative)
         files.append({
