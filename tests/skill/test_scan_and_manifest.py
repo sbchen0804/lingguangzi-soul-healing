@@ -7,6 +7,7 @@ SCRIPTS = Path(__file__).parents[2] / "skills/lingguangzi-chapter-site/scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from chapter_types import Issue, read_json, write_json
+from manifest import confirm_manifest, draft_manifest, invalidate_if_changed, validate_manifest
 from scan_chapter import _chapter_number, inventory_digest, scan_chapter
 
 
@@ -101,3 +102,94 @@ class ScanTests(unittest.TestCase):
             _chapter_number(Path("靈魂療癒系列"))
         with self.assertRaises(ValueError):
             _chapter_number(Path("chapter-520 chapter-521"))
+
+
+class ManifestTests(unittest.TestCase):
+    def setUp(self):
+        self.inventory = scan_chapter(Path(__file__).parent / "fixtures/chapter-999")
+
+    def test_draft_supports_multiple_songs_and_refined_items(self):
+        draft = draft_manifest(self.inventory)
+        self.assertEqual(draft["status"], "draft")
+        self.assertIsInstance(draft["songs"], list)
+        self.assertIsInstance(draft["refined"]["items"], list)
+
+    def test_confirm_requires_all_supported_files_mapped_or_excluded(self):
+        issues = validate_manifest(draft_manifest(self.inventory), self.inventory)
+        self.assertTrue(any(issue.code == "unmapped_file" for issue in issues))
+
+    def test_source_change_invalidates_confirmation(self):
+        manifest = {"status": "confirmed", "inventory_digest": "sha256:old", "revision": 1}
+        changed = invalidate_if_changed(manifest, {"inventory_digest": "sha256:new"})
+        self.assertEqual(changed["status"], "draft")
+        self.assertEqual(changed["revision"], 2)
+
+    def test_validation_reports_each_stable_blocking_code(self):
+        manifest = draft_manifest(self.inventory)
+        manifest.update({
+            "inventory_digest": "sha256:stale",
+            "title": "",
+            "original": {"cover": "原圖文/missing.png", "pdf": "原圖文/original.pdf"},
+            "songs": [
+                {"id": "song-01", "title": "第一首", "audio": "詩歌創作/song.mp3", "lyrics_source": "詩歌創作/lyrics.txt", "order": 1},
+                {"id": "song-01", "title": "第二首", "audio": "詩歌創作/song.mp3", "lyrics_source": "詩歌創作/lyrics.txt", "order": 1},
+            ],
+            "visual": {"style_family": "watercolor"},
+        })
+        codes = {issue.code for issue in validate_manifest(manifest, self.inventory)}
+        self.assertTrue({
+            "missing_required_field",
+            "missing_source_file",
+            "duplicate_id",
+            "duplicate_order",
+            "unmapped_file",
+            "inventory_mismatch",
+            "visual_brief_incomplete",
+        }.issubset(codes))
+
+    def test_confirm_writes_a_current_confirmed_revision_after_mapping_all_files(self):
+        manifest = draft_manifest(self.inventory)
+        manifest.update({
+            "title": "測試章節",
+            "subtitle": "副標題",
+            "original": {"cover": "原圖文/cover.png", "pdf": "原圖文/original.pdf"},
+            "songs": [{
+                "id": "song-01",
+                "title": "測試詩歌",
+                "audio": "詩歌創作/song.mp3",
+                "lyrics_source": "詩歌創作/lyrics.txt",
+                "order": 1,
+            }],
+            "visual": self._complete_visual(),
+        })
+        with TemporaryDirectory() as raw:
+            path = Path(raw) / "chapter.json"
+            write_json(path, manifest)
+            confirmed = confirm_manifest(path, self.inventory)
+            self.assertEqual(confirmed["status"], "confirmed")
+            self.assertEqual(confirmed["revision"], 1)
+            self.assertEqual(confirmed["inventory_digest"], self.inventory["inventory_digest"])
+            self.assertEqual(read_json(path), confirmed)
+            self.assertEqual(list(Path(raw).glob("*.tmp")), [])
+
+    def test_confirm_refuses_to_replace_manifest_when_blocking_issues_exist(self):
+        manifest = draft_manifest(self.inventory)
+        with TemporaryDirectory() as raw:
+            path = Path(raw) / "chapter.json"
+            write_json(path, manifest)
+            before = path.read_text(encoding="utf-8")
+            with self.assertRaises(ValueError):
+                confirm_manifest(path, self.inventory)
+            self.assertEqual(path.read_text(encoding="utf-8"), before)
+
+    @staticmethod
+    def _complete_visual():
+        return {
+            "style_family": "watercolor",
+            "concept": "測試意象",
+            "composition": "測試構圖",
+            "palette": ["藍", "綠"],
+            "mood": ["安穩"],
+            "distinctive_elements": ["門"],
+            "avoid": ["湖面"],
+        }
