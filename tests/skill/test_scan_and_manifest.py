@@ -72,6 +72,20 @@ class ScanTests(unittest.TestCase):
         changed = [{**files[0], "modified_time": "two", "unrelated": "ignored"}]
         self.assertEqual(inventory_digest(files), inventory_digest(changed))
 
+    def test_inventory_digest_normalizes_paths_before_sorting(self):
+        decomposed = [{"path": "cafe\u0301.txt", "size": 1, "sha256": "a" * 64}]
+        composed = [{"path": "café.txt", "size": 1, "sha256": "a" * 64}]
+        self.assertEqual(inventory_digest(decomposed), inventory_digest(composed))
+
+    def test_scan_rejects_normalized_relative_path_collisions(self):
+        with TemporaryDirectory() as raw:
+            root = Path(raw) / "chapter-999"
+            root.mkdir()
+            (root / "café.txt").write_text("one", encoding="utf-8")
+            (root / "cafe\u0301.txt").write_text("two", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "normalized path collision.*café.txt"):
+                scan_chapter(root)
+
     def test_scan_excludes_unsupported_suffixes(self):
         with TemporaryDirectory() as raw:
             root = Path(raw) / "chapter-999"

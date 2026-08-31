@@ -60,10 +60,15 @@ def _sha256(path: Path) -> str:
 
 
 def inventory_digest(files: list[dict]) -> str:
-    canonical = [
-        {key: item[key] for key in ("path", "size", "sha256")}
-        for item in sorted(files, key=lambda item: item["path"])
-    ]
+    canonical = []
+    seen: set[str] = set()
+    for item in files:
+        path = _normalize_path(item["path"])
+        if path in seen:
+            raise ValueError(f"normalized path collision: {path}")
+        seen.add(path)
+        canonical.append({"path": path, "size": item["size"], "sha256": item["sha256"]})
+    canonical.sort(key=lambda item: item["path"])
     encoded = json.dumps(canonical, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
@@ -80,10 +85,14 @@ def scan_chapter(root: Path) -> dict:
     if not root.is_dir():
         raise ValueError(f"chapter source directory does not exist: {root}")
     files = []
+    normalized_paths: set[str] = set()
     for path in root.rglob("*"):
         if not path.is_file() or path.suffix.lower() not in SUPPORTED:
             continue
         relative = _normalize_path(path.relative_to(root).as_posix())
+        if relative in normalized_paths:
+            raise ValueError(f"normalized path collision: {relative}")
+        normalized_paths.add(relative)
         stat = path.stat()
         candidates = role_candidates(relative)
         files.append({
