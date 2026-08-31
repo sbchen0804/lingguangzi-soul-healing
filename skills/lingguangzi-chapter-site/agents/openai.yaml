@@ -1,0 +1,4 @@
+interface:
+  display_name: "靈魂療癒章節建站"
+  short_description: "建立與發布靈魂療癒章節網站"
+  default_prompt: "掃描指定章節目錄，先產生 chapter.json 草稿供我確認；未經確認不要建站或發布。"
