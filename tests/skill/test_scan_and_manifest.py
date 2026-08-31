@@ -186,6 +186,29 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("missing_required_field", {issue.code for issue in issues})
         self.assertIn("visual_brief_incomplete", {issue.code for issue in issues})
 
+    def test_unhashable_status_values_are_blocking_issues_not_crashes(self):
+        for value in ([], {}):
+            with self.subTest(value=value):
+                manifest = self._complete_manifest()
+                manifest["status"] = value
+                issues = validate_manifest(manifest, self.inventory)
+                self.assertTrue(issues)
+                self.assertIn("missing_required_field", {issue.code for issue in issues})
+
+    def test_schema_version_must_be_integer_one(self):
+        for value in (False, 0, 2, "1"):
+            with self.subTest(value=value):
+                manifest = self._complete_manifest()
+                manifest["schema_version"] = value
+                self.assertIn("missing_required_field", self._codes(manifest))
+
+    def test_revision_must_be_a_non_negative_integer(self):
+        for value in (False, -1, "0"):
+            with self.subTest(value=value):
+                manifest = self._complete_manifest()
+                manifest["revision"] = value
+                self.assertIn("missing_required_field", self._codes(manifest))
+
     def test_unhashable_song_and_refined_values_are_blocking_issues_not_crashes(self):
         manifest = self._complete_manifest()
         manifest["songs"][0]["id"] = []
@@ -255,6 +278,22 @@ class ManifestTests(unittest.TestCase):
         with TemporaryDirectory() as raw:
             for index, manifest in enumerate(manifests):
                 path = Path(raw) / f"chapter-{index}.json"
+                write_json(path, manifest)
+                with self.assertRaises(ValueError):
+                    confirm_manifest(path, self.inventory)
+                self.assertNotEqual(read_json(path).get("status"), "confirmed")
+
+    def test_confirm_refuses_invalid_schema_version_and_revision_without_confirming(self):
+        manifests = []
+        invalid_version = self._complete_manifest()
+        invalid_version["schema_version"] = 2
+        manifests.append(invalid_version)
+        invalid_revision = self._complete_manifest()
+        invalid_revision["revision"] = -1
+        manifests.append(invalid_revision)
+        with TemporaryDirectory() as raw:
+            for index, manifest in enumerate(manifests):
+                path = Path(raw) / f"schema-{index}.json"
                 write_json(path, manifest)
                 with self.assertRaises(ValueError):
                     confirm_manifest(path, self.inventory)

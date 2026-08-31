@@ -97,11 +97,12 @@ def _source_paths(manifest: dict) -> list[str]:
 
 
 def _validate_required_fields(manifest: dict, issues: list[Issue]) -> None:
-    if not _is_int(manifest.get("schema_version")):
+    if not _is_int(manifest.get("schema_version")) or manifest["schema_version"] != 1:
         _schema_error(issues, "schema_version")
-    if not _is_int(manifest.get("revision")):
+    if not _is_int(manifest.get("revision")) or manifest["revision"] < 0:
         _schema_error(issues, "revision")
-    if manifest.get("status") not in {"draft", "confirmed"}:
+    status = manifest.get("status")
+    if not isinstance(status, str) or status not in ("draft", "confirmed"):
         _schema_error(issues, "status")
     if not _is_string(manifest.get("inventory_digest")):
         _schema_error(issues, "inventory_digest")
