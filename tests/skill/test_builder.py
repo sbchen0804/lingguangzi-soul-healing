@@ -131,6 +131,20 @@ class BuilderTests(unittest.TestCase):
             self.assertIn('<video controls preload="metadata"', html)
             self.assertIn("線上閱讀", html)
 
+    def test_builder_reserves_pdf_page_space_before_lazy_images_load(self):
+        """Missing intrinsic dimensions lets mobile anchor targets drift during first load."""
+        with TemporaryDirectory() as raw:
+            _, manifest_path = self._confirmed_source(Path(raw), multiple=True)
+            result = build_chapter(manifest_path, self._site(Path(raw)))
+            html = (Path(result["output"]) / "index.html").read_text(encoding="utf-8")
+            lazy_images = [tag for tag in html.split("<img ") if tag.startswith('loading="lazy"')]
+
+            self.assertGreaterEqual(len(lazy_images), 2)
+            for tag in lazy_images:
+                with self.subTest(tag=tag[:120]):
+                    self.assertRegex(tag, r'width="[1-9][0-9]*"')
+                    self.assertRegex(tag, r'height="[1-9][0-9]*"')
+
     def test_renderers_escape_untrusted_text_and_attribute_values(self):
         manifest = {
             "chapter": 999,

@@ -134,6 +134,20 @@ def render_entry_nav(chapter: int) -> str:
     )
 
 
+def _render_pdf_page_image(page: object, alt: str) -> str:
+    if isinstance(page, dict):
+        source = page.get("path", "")
+        width, height = page.get("width"), page.get("height")
+    else:
+        source, width, height = page, None, None
+    dimensions = (
+        f' width="{width}" height="{height}"'
+        if isinstance(width, int) and width > 0 and isinstance(height, int) and height > 0
+        else ""
+    )
+    return f'<img loading="lazy"{dimensions} src="{_text(source)}" alt="{_text(alt)}">'
+
+
 def render_original(manifest: dict, assets: dict) -> str:
     chapter = manifest["chapter"]
     original = manifest.get("original", {})
@@ -141,7 +155,7 @@ def render_original(manifest: dict, assets: dict) -> str:
     document = _text(assets.get(original.get("pdf"), ""))
     pages = assets.get(f"pages:{original.get('pdf')}", [])
     page_html = "".join(
-        f'<figure><img loading="lazy" src="{_text(page)}" alt="原圖文第 {number} 頁"><figcaption>第 {number} 頁</figcaption></figure>'
+        f'<figure>{_render_pdf_page_image(page, f"原圖文第 {number} 頁")}<figcaption>第 {number} 頁</figcaption></figure>'
         for number, page in enumerate(pages, 1)
     )
     return (
@@ -179,7 +193,7 @@ def render_refined(items: list[dict], assets: dict) -> str:
         elif kind == "document":
             pages = assets.get(f"pages:{item.get('file')}", [])
             content = '<div class="page-stack" aria-label="精煉篇全文">' + "".join(
-                f'<figure><img loading="lazy" src="{_text(page)}" alt="{title}第 {number} 頁"><figcaption>第 {number} 頁</figcaption></figure>'
+                f'<figure>{_render_pdf_page_image(page, f"{item.get('title', '')}第 {number} 頁")}<figcaption>第 {number} 頁</figcaption></figure>'
                 for number, page in enumerate(pages, 1)) + '</div>'
         elif kind == "audio":
             content = f'<audio controls preload="metadata" data-title="{title}" src="{file_url}">你的瀏覽器不支援音訊播放。</audio>'
@@ -342,11 +356,17 @@ def build_chapter(manifest_path: Path, site_root: Path) -> dict:
             raise BuildBlocked("share image must be a readable 1200x630 image") from error
         manifest["visual"]["share"] = assets[share_relative]
         original_pages = render_pdf_pages(_safe_source(source_root, original["pdf"]), stage / "assets" / "pages", f"original-{chapter}")
-        assets[f"pages:{original['pdf']}"] = [Path(page["path"]).relative_to(stage).as_posix() for page in original_pages]
+        assets[f"pages:{original['pdf']}"] = [
+            {**page, "path": Path(page["path"]).relative_to(stage).as_posix()}
+            for page in original_pages
+        ]
         for item in manifest["refined"]["items"]:
             if item["type"] == "document":
                 pages = render_pdf_pages(_safe_source(source_root, item["file"]), stage / "assets" / "pages", f"refined-{chapter}-{item['order']}")
-                assets[f"pages:{item['file']}"] = [Path(page["path"]).relative_to(stage).as_posix() for page in pages]
+                assets[f"pages:{item['file']}"] = [
+                    {**page, "path": Path(page["path"]).relative_to(stage).as_posix()}
+                    for page in pages
+                ]
         template = (TEMPLATE_ROOT / "chapter.html").read_text(encoding="utf-8")
         tokens = {
             "head": render_head(manifest, public_url), "chapter": _text(chapter), "entry_href": "#entry-" + _text(chapter),
