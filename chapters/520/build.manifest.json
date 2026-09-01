@@ -148,18 +148,18 @@
     },
     {
       "path": "chapter.js",
-      "size": 3370,
-      "sha256": "bd36349de05e847d8c5b59e1af820b6b691ca3bfec37429dab7e564846c6d764"
+      "size": 4322,
+      "sha256": "c31d88d17546cb332b98c8deec37014d8b4fade10d099ccdb3d839081fc9765b"
     },
     {
       "path": "index.html",
-      "size": 13239,
-      "sha256": "c95fe1f45a9ac6cead3325f9880710afef13c9335ac7f8099cdd4668698074c9"
+      "size": 13289,
+      "sha256": "bdcad67db9c0480abd65275c1a3dad973f639d8cea3e6b7c67d6ca10e015f2f3"
     },
     {
       "path": "styles.css",
-      "size": 6283,
-      "sha256": "982532c92a10b75bc614176e3891f24aab38afbf44c494c70b1567040ea902f3"
+      "size": 6489,
+      "sha256": "6fc04c3ce38ab832e83aa9cec5e723fb081d9a120d2773fce41288f066199d4d"
     }
   ],
   "self_included": false

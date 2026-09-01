@@ -54,6 +54,7 @@
   addEventListener("pagehide", stopAllMedia);
 
   const counter = document.querySelector("[data-goatcounter]");
+  const counterValue = document.querySelector("#chapter-view-count");
   if (counter && !["localhost", "127.0.0.1"].includes(location.hostname)) {
     const code = counter.dataset.goatcounter;
     if (/^[a-z0-9-]+$/i.test(code)) {
@@ -61,7 +62,23 @@
       script.async = true;
       script.dataset.goatcounter = `https://${code}.goatcounter.com/count`;
       script.src = "https://gc.zgo.at/count.js";
+      script.addEventListener("load", async () => {
+        try {
+          const path = window.goatcounter?.get_data?.().p || location.pathname;
+          const endpoint = `https://${code}.goatcounter.com/counter/${encodeURIComponent(path)}.json`;
+          const response = await fetch(endpoint, { credentials: "omit" });
+          if (!response.ok) throw new Error(`counter ${response.status}`);
+          const result = await response.json();
+          if (typeof result.count !== "string" || !result.count.trim()) throw new Error("counter value missing");
+          counterValue.textContent = result.count;
+        } catch {
+          counterValue.textContent = "暫時無法取得";
+        }
+      });
+      script.addEventListener("error", () => { counterValue.textContent = "暫時無法取得"; });
       document.head.append(script);
     }
+  } else if (counterValue) {
+    counterValue.textContent = "本機預覽不計入";
   }
 })();

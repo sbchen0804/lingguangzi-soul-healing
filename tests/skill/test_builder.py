@@ -145,6 +145,24 @@ class BuilderTests(unittest.TestCase):
                     self.assertRegex(tag, r'width="[1-9][0-9]*"')
                     self.assertRegex(tag, r'height="[1-9][0-9]*"')
 
+    def test_builder_exposes_a_visible_live_region_for_the_public_visit_count(self):
+        with TemporaryDirectory() as raw:
+            root = Path(raw)
+            _, manifest_path = self._confirmed_source(root)
+            site = self._site(root)
+            (site / "site.config.json").write_text(json.dumps({
+                "base_url": "https://example.test/",
+                "analytics": {"goatcounter_code": "example-code"},
+            }), encoding="utf-8")
+
+            result = build_chapter(manifest_path, site)
+            html = (Path(result["output"]) / "index.html").read_text(encoding="utf-8")
+
+            self.assertIn('data-goatcounter="example-code"', html)
+            self.assertIn('id="chapter-view-count"', html)
+            self.assertIn('aria-live="polite"', html)
+            self.assertIn('讀取中…', html)
+
     def test_renderers_escape_untrusted_text_and_attribute_values(self):
         manifest = {
             "chapter": 999,
