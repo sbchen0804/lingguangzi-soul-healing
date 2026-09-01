@@ -7,6 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import sys
 import unittest
+from unittest.mock import patch
 
 from PIL import Image
 from reportlab.pdfgen.canvas import Canvas
@@ -55,7 +56,7 @@ class BuilderTests(unittest.TestCase):
                 item["role"] = "unknown"
             (source / "chapter.lock.json").write_text(json.dumps(lock), encoding="utf-8")
 
-            result = build_chapter(manifest_path, Path(raw) / "site")
+            result = build_chapter(manifest_path, self._site(Path(raw)))
             self.assertTrue(Path(result["output"]).is_dir())
 
     def test_build_rejects_missing_and_traversing_assets_without_writing_site(self):
@@ -96,7 +97,8 @@ class BuilderTests(unittest.TestCase):
     def test_builder_copies_cover_bytes_and_lists_every_emitted_file_hash(self):
         with TemporaryDirectory() as raw:
             source, manifest_path = self._confirmed_source(Path(raw))
-            result = build_chapter(manifest_path, Path(raw) / "site")
+            site = self._site(Path(raw))
+            result = build_chapter(manifest_path, site)
             output = Path(result["output"])
             copied_cover = output / "assets/原圖文/cover.png"
             source_cover = source / "原圖文/cover.png"
@@ -118,7 +120,7 @@ class BuilderTests(unittest.TestCase):
     def test_builder_emits_ordered_multiple_songs_and_refined_native_media(self):
         with TemporaryDirectory() as raw:
             source, manifest_path = self._confirmed_source(Path(raw), multiple=True)
-            result = build_chapter(manifest_path, Path(raw) / "site")
+            result = build_chapter(manifest_path, self._site(Path(raw)))
             html = (Path(result["output"]) / "index.html").read_text(encoding="utf-8")
             self.assertEqual(html.count('class="song-card"'), 2)
             self.assertLess(html.index("第一首"), html.index("第二首"))
@@ -175,6 +177,63 @@ class BuilderTests(unittest.TestCase):
         ):
             self.assertIn(expected, head)
 
+    def test_build_requires_https_base_url_and_emits_it_in_all_public_metadata(self):
+        with TemporaryDirectory() as raw:
+            _, manifest_path = self._confirmed_source(Path(raw))
+            site = self._site(Path(raw), "https://chapters.example/series")
+            result = build_chapter(manifest_path, site)
+            html = (Path(result["output"]) / "index.html").read_text(encoding="utf-8")
+            url = "https://chapters.example/series/chapters/999/"
+            self.assertEqual(result["public_url"], url)
+            self.assertIn(f'rel="canonical" href="{url}"', html)
+            self.assertIn(f'property="og:url" content="{url}"', html)
+            self.assertIn(f'name="twitter:image" content="{url}assets/精煉篇_找回生命的靈魂處方/share.png"', html)
+            self.assertIn(f'"mainEntityOfPage":"{url}"', html)
+
+    def test_build_blocks_missing_or_non_https_base_url(self):
+        with TemporaryDirectory() as raw:
+            _, manifest_path = self._confirmed_source(Path(raw))
+            for number, config in enumerate(({}, {"base_url": ""}, {"base_url": "http://example.test"}, {"base_url": []})):
+                with self.subTest(config=config):
+                    site = Path(raw) / f"site-{number}"
+                    site.mkdir()
+                    (site / "site.config.json").write_text(json.dumps(config), encoding="utf-8")
+                    with self.assertRaises(BuildBlocked):
+                        build_chapter(manifest_path, site)
+
+    def test_builder_blocks_ocr_required_lyrics_instead_of_emitting_empty_lyrics(self):
+        with TemporaryDirectory() as raw:
+            _, manifest_path = self._confirmed_source(Path(raw))
+            with patch("build_chapter.extract_lyrics", return_value={"status": "requires_ocr", "html": "", "warnings": ["OCR review"]}):
+                with self.assertRaisesRegex(BuildBlocked, "lyrics.*OCR|OCR.*lyrics"):
+                    build_chapter(manifest_path, self._site(Path(raw)))
+
+    def test_render_songs_preserves_generated_escaped_lyrics_once_and_blocks_markup_injection(self):
+        generated = '<p>風 &lt; 心 &amp; 今天<br>安穩</p>'
+        html = render_songs([{"id": "song-01", "title": "歌", "order": 1, "lyrics_html": generated}], {"song-01": "assets/song.mp3", "chapter": 999})
+        self.assertIn(generated, html)
+        self.assertNotIn("&amp;lt;", html)
+        hostile = render_songs([{"id": "song-01", "title": "歌", "order": 1, "lyrics_html": '<p onclick="bad">x</p><script>alert(1)</script>'}], {"song-01": "assets/song.mp3", "chapter": 999})
+        self.assertNotIn('onclick="bad"', hostile)
+        self.assertNotIn("<script>", hostile)
+
+    def test_builder_blocks_missing_or_wrong_dimension_share_image(self):
+        with TemporaryDirectory() as raw:
+            source, manifest_path = self._confirmed_source(Path(raw))
+            Image.new("RGB", (100, 100), "white").save(source / "精煉篇_找回生命的靈魂處方/share.png")
+            self._refresh_manifest_lock(source, manifest_path)
+            with self.assertRaisesRegex(BuildBlocked, "share.*1200x630"):
+                build_chapter(manifest_path, self._site(Path(raw)))
+
+    def test_builder_refuses_existing_reparse_point_in_output_path(self):
+        with TemporaryDirectory() as raw:
+            _, manifest_path = self._confirmed_source(Path(raw))
+            site = self._site(Path(raw))
+            (site / "chapters").mkdir()
+            with patch("build_chapter._is_reparse_point", side_effect=lambda path: Path(path).name == "chapters"):
+                with self.assertRaisesRegex(BuildBlocked, "reparse"):
+                    build_chapter(manifest_path, site)
+
     def test_head_rejects_an_external_or_traversing_share_image_value(self):
         manifest = {"chapter": 999, "title": "標題", "subtitle": "副標題", "theme": {"keywords": []}, "sharing": {}}
         for share in ("https://tracker.example/share.png", "../share.png", "/share.png"):
@@ -216,6 +275,8 @@ class BuilderTests(unittest.TestCase):
         for folder in (original, songs, refined):
             folder.mkdir(parents=True)
         Image.new("RGB", (160, 220), "#dbe8df").save(original / "cover.png")
+        Image.new("RGB", (1200, 630), "#cde8df").save(refined / "share.png")
+        Image.new("RGB", (1600, 900), "#b9d8ca").save(refined / "hero.png")
         canvas = Canvas(str(original / "original.pdf"))
         canvas.drawString(72, 720, "chapter original")
         canvas.save()
@@ -245,11 +306,12 @@ class BuilderTests(unittest.TestCase):
             "visual": {
                 "style_family": "watercolor", "concept": "今天", "composition": "留白",
                 "palette": ["綠"], "mood": ["安穩"], "distinctive_elements": ["光"], "avoid": ["湖"],
+                "hero": "精煉篇_找回生命的靈魂處方/hero.png", "share": "精煉篇_找回生命的靈魂處方/share.png",
             },
             "original": {"cover": "原圖文/cover.png", "pdf": "原圖文/original.pdf"},
             "songs": [{"id": "song-01", "title": "第一首", "audio": "詩歌創作/song-01.mp3", "lyrics_source": "詩歌創作/song-01.txt", "order": 1}],
             "refined": {"title": "找回生命的靈魂處方", "items": []},
-            "sharing": {}, "excluded_files": [],
+            "sharing": {"published_at": "2026-09-01", "modified_at": "2026-09-01"}, "excluded_files": [],
         }
         if multiple:
             manifest["songs"].append({"id": "song-02", "title": "第二首", "audio": "詩歌創作/song-02.mp3", "lyrics_source": "詩歌創作/song-02.txt", "order": 2})
@@ -262,6 +324,21 @@ class BuilderTests(unittest.TestCase):
         manifest_path = source / "chapter.json"
         manifest_path.write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
         return source, manifest_path
+
+    @staticmethod
+    def _site(root: Path, base_url: str = "https://example.test/") -> Path:
+        site = root / "site"
+        site.mkdir(exist_ok=True)
+        (site / "site.config.json").write_text(json.dumps({"base_url": base_url}), encoding="utf-8")
+        return site
+
+    @staticmethod
+    def _refresh_manifest_lock(source: Path, manifest_path: Path) -> None:
+        inventory = scan_chapter(source)
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest["inventory_digest"] = inventory["inventory_digest"]
+        manifest_path.write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
+        (source / "chapter.lock.json").write_text(json.dumps({"chapter": inventory["chapter"], "inventory_digest": inventory["inventory_digest"], "files": [{key: item[key] for key in ("path", "size", "modified_time", "sha256")} for item in inventory["files"]]}), encoding="utf-8")
 
 
 if __name__ == "__main__":

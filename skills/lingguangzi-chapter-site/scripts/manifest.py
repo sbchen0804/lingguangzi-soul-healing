@@ -5,6 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 import os
 from pathlib import Path
+import re
 from uuid import uuid4
 
 try:
@@ -32,6 +33,13 @@ _VISUAL_FIELDS = (
     "distinctive_elements",
     "avoid",
 )
+_REFINED_SUFFIXES = {
+    "image": {".png", ".jpg", ".jpeg"},
+    "document": {".pdf"},
+    "audio": {".mp3", ".m4a"},
+    "video": {".mp4"},
+}
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2}))?$")
 
 
 def draft_manifest(inventory: dict) -> dict:
@@ -93,6 +101,9 @@ def _source_paths(manifest: dict) -> list[str]:
         for item in items if isinstance(items, list) else []:
             if isinstance(item, dict) and isinstance(item.get("file"), str) and item["file"]:
                 paths.append(item["file"])
+    visual = manifest.get("visual", {})
+    if isinstance(visual, dict):
+        paths.extend(value for key in ("hero", "share") if isinstance((value := visual.get(key)), str) and value)
     return paths
 
 
@@ -165,12 +176,26 @@ def _validate_required_fields(manifest: dict, issues: list[Issue]) -> None:
                     _schema_error(issues, f"refined.items[{index}].order")
                 if "display" in item and not isinstance(item["display"], str):
                     _schema_error(issues, f"refined.items[{index}].display")
+                item_type = item.get("type")
+                file_value = item.get("file")
+                if item_type not in _REFINED_SUFFIXES:
+                    _schema_error(issues, f"refined.items[{index}].type")
+                elif isinstance(file_value, str) and Path(file_value).suffix.lower() not in _REFINED_SUFFIXES[item_type]:
+                    _schema_error(issues, f"refined.items[{index}].file")
 
     sharing = manifest.get("sharing")
     if not isinstance(sharing, dict):
         _schema_error(issues, "sharing")
-    elif any(key not in {"description", "image_alt"} or not isinstance(value, str) for key, value in sharing.items()):
+    elif any(key not in {"description", "image_alt", "published_at", "modified_at"} or not isinstance(value, str) for key, value in sharing.items()):
         _schema_error(issues, "sharing")
+    elif any(key in sharing and sharing[key] and not _DATE_RE.fullmatch(sharing[key]) for key in ("published_at", "modified_at")):
+        _schema_error(issues, "sharing")
+
+    visual = manifest.get("visual")
+    if isinstance(visual, dict):
+        for field in ("hero", "share"):
+            if field in visual and not _is_string(visual[field]):
+                _schema_error(issues, f"visual.{field}")
 
     excluded = manifest.get("excluded_files")
     if not isinstance(excluded, list) or not all(_is_string(path) for path in excluded):

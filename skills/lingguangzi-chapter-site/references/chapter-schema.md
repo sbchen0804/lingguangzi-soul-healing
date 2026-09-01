@@ -18,17 +18,17 @@
 | `original` | Original-author cover and PDF sources. |
 | `songs` | Ordered, extensible song array. |
 | `refined.items` | Ordered, extensible refined-content array. |
-| `sharing` | Optional sharing overrides (`description`, `image_alt`). |
+| `sharing` | Optional sharing overrides (`description`, `image_alt`, ISO `published_at`, ISO `modified_at`). |
 | `excluded_files` | Supported source paths deliberately not used on the page. |
 
-Every supported source path in the inventory must be mapped exactly once by `original`, a song, or a refined item, or listed exactly once in `excluded_files`. A path named by the manifest must exist in the inventory.
+Every supported source path in the inventory must be mapped exactly once by `original`, `visual.hero`, `visual.share`, a song, or a refined item, or listed exactly once in `excluded_files`. A path named by the manifest must exist in the inventory.
 
 ## Nested fields
 
 - `original` has `cover` and `pdf`.
 - Each song has `id`, `title`, `audio`, `lyrics_source`, and `order`. Song `id` and `order` values must each be unique; add as many songs as needed.
-- `refined` has `title` and `items`. Each refined item has `type`, `role`, `title`, `file`, `order`, and optional `display`. Items are extensible: add images, documents, audio, video, or future supported content in display order; refined-item `order` values must be unique.
-- `visual` must contain `style_family`, `concept`, `composition`, `palette`, `mood`, `distinctive_elements`, and `avoid` before confirmation.
+- `refined` has `title` and `items`. Each refined item has `type`, `role`, `title`, `file`, `order`, and optional `display`. Valid types are `image` (`.png`, `.jpg`, `.jpeg`), `document` (`.pdf`), `audio` (`.mp3`, `.m4a`), and `video` (`.mp4`); type and file extension must agree.
+- `visual` must contain `style_family`, `concept`, `composition`, `palette`, `mood`, `distinctive_elements`, and `avoid` before confirmation. `hero` and `share` are optional at draft/confirmation time but, when present, are mapped local source files. A build requires both; `share` must be a 1200×630 image.
 
 ## Example
 

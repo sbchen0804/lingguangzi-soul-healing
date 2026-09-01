@@ -164,6 +164,20 @@ class ManifestTests(unittest.TestCase):
         manifest["visual"] = {"style_family": "watercolor"}
         self.assertIn("visual_brief_incomplete", self._codes(manifest))
 
+    def test_visual_hero_and_share_are_mapped_source_files(self):
+        manifest = self._complete_manifest()
+        manifest["visual"].update({"hero": "原圖文/cover.png", "share": "原圖文/original.pdf"})
+        manifest["original"] = {}
+        self.assertNotIn("unmapped_file", self._codes(manifest))
+
+    def test_refined_type_must_match_supported_file_extension(self):
+        manifest = self._complete_manifest()
+        manifest["songs"] = []
+        manifest["excluded_files"] = ["詩歌創作/song.mp3", "詩歌創作/lyrics.txt"]
+        manifest["refined"]["items"] = [{"type": "video", "role": "feature", "title": "錯誤類型", "file": "原圖文/cover.png", "order": 1}]
+        manifest["original"] = {"pdf": "原圖文/original.pdf"}
+        self.assertIn("missing_required_field", self._codes(manifest))
+
     def test_malformed_containers_are_blocking_issues_not_crashes(self):
         manifest = self._complete_manifest()
         manifest.update({"songs": None, "refined": [], "sharing": [], "excluded_files": {"cover"}})

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from html import escape
+from html.parser import HTMLParser
 import hashlib
 import json
 import os
@@ -11,6 +12,7 @@ import re
 import shutil
 from tempfile import mkdtemp
 from urllib.parse import urljoin, urlparse
+from PIL import Image
 
 try:
     from chapter_types import read_json, write_json
@@ -38,17 +40,24 @@ def _text(value: object) -> str:
     return escape(str(value) if value is not None else "", quote=True)
 
 
+class _LyricsSanitizer(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=False)
+        self.parts: list[str] = []
+    def handle_starttag(self, tag, attrs):
+        self.parts.append(f"<{tag}>" if tag in {"p", "br"} and not attrs else escape(self.get_starttag_text()))
+    def handle_endtag(self, tag): self.parts.append(f"</{tag}>" if tag == "p" else escape(f"</{tag}>"))
+    def handle_data(self, data): self.parts.append(escape(data))
+    def handle_entityref(self, name): self.parts.append(f"&{name};")
+    def handle_charref(self, name): self.parts.append(f"&#{name};")
+
+
 def _safe_lyrics(value: object) -> str:
-    """Keep only semantic lyrics tags emitted by extract_lyrics; escape all else."""
-    raw = str(value or "")
-    parts = re.split(r"(<(?:/p|p|br)>)", raw, flags=re.IGNORECASE)
-    safe = []
-    for part in parts:
-        if re.fullmatch(r"<(?:/p|p|br)>", part, flags=re.IGNORECASE):
-            safe.append(part.lower())
-        else:
-            safe.append(escape(part))
-    return "".join(safe)
+    """Preserve generated escaped p/br lyrics while escaping arbitrary markup."""
+    parser = _LyricsSanitizer()
+    parser.feed(str(value or ""))
+    parser.close()
+    return "".join(parser.parts)
 
 
 def _description(manifest: dict) -> str:
@@ -95,6 +104,10 @@ def render_head(manifest: dict, public_url: str) -> str:
         "description": description, "image": share_url, "mainEntityOfPage": public_url,
         "author": {"@type": "Person", "name": "柯萬盛醫師（筆名靈光子）"},
     }
+    if sharing.get("published_at"):
+        article["datePublished"] = sharing["published_at"]
+    if sharing.get("modified_at"):
+        article["dateModified"] = sharing["modified_at"]
     article_json = json.dumps(article, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
     return "\n".join((
         '<meta charset="utf-8">', '<meta name="viewport" content="width=device-width, initial-scale=1">',
@@ -106,7 +119,7 @@ def render_head(manifest: dict, public_url: str) -> str:
         '<meta property="og:image:width" content="1200">', '<meta property="og:image:height" content="630">',
         f'<meta property="og:image:alt" content="{_text(image_alt)}">', '<meta name="twitter:card" content="summary_large_image">',
         f'<meta name="twitter:title" content="{_text(page_title)}">', f'<meta name="twitter:description" content="{_text(description)}">',
-        f'<meta name="twitter:image" content="{_text(share_url)}">', f'<script type="application/ld+json">{article_json}</script>',
+        f'<meta name="twitter:image" content="{_text(share_url)}">', f'<meta name="twitter:image:alt" content="{_text(image_alt)}">', f'<script type="application/ld+json">{article_json}</script>',
     ))
 
 
@@ -152,7 +165,7 @@ def render_songs(songs: list[dict], assets: dict) -> str:
             f'<details class="lyrics"><summary>閱讀歌詞</summary><div class="lyrics-copy" aria-label="{_text(song.get("title"))}歌詞">{_safe_lyrics(song.get("lyrics_html"))}</div></details></article>'
         )
     return '<section class="content song-section" id="song-{0}"><p class="eyebrow">MUSIC</p><h2>詩歌呈現</h2><div class="song-list">{1}</div></section>'.format(
-        _text(songs[0].get("chapter", "")) if songs else "", "".join(cards))
+        _text(assets.get("chapter", "")), "".join(cards))
 
 
 def render_refined(items: list[dict], assets: dict) -> str:
@@ -200,6 +213,17 @@ def _safe_source(root: Path, relative: object) -> Path:
     if not resolved.is_file():
         raise BuildBlocked(f"missing source asset: {relative}")
     return resolved
+
+
+def _is_reparse_point(path: Path) -> bool:
+    """Detect links/junctions before promoting output through an existing path."""
+    if path.is_symlink():
+        return True
+    try:
+        attributes = path.lstat().st_file_attributes
+    except (AttributeError, OSError):
+        return False
+    return bool(attributes & 0x400)
 
 
 def _copy_asset(source_root: Path, stage: Path, relative: str) -> str:
@@ -271,10 +295,16 @@ def build_chapter(manifest_path: Path, site_root: Path) -> dict:
     output = site_root / "chapters" / str(chapter)
     if output.exists():
         raise BuildBlocked(f"refusing to overwrite existing chapter output: {output}")
+    if any(_is_reparse_point(path) for path in (site_root, site_root / "chapters") if path.exists()):
+        raise BuildBlocked("refusing output promotion through a reparse point")
     config_path = site_root / "site.config.json"
-    config = read_json(config_path) if config_path.is_file() else {}
-    public_base = config.get("public_url", "https://example.invalid/")
-    public_url = _absolute_url(str(public_base), f"chapters/{chapter}/")
+    try:
+        config = read_json(config_path)
+    except (FileNotFoundError, json.JSONDecodeError) as error:
+        raise BuildBlocked("site.config.json with HTTPS base_url is required") from error
+    if not isinstance(config, dict) or not isinstance(config.get("base_url"), str) or not config["base_url"].strip():
+        raise BuildBlocked("site.config.json requires a non-empty HTTPS base_url")
+    public_url = _absolute_url(config["base_url"].strip(), f"chapters/{chapter}/")
 
     site_root.mkdir(parents=True, exist_ok=True)
     staging_parent = Path(mkdtemp(prefix=f".chapter-{chapter}-", dir=site_root))
@@ -288,18 +318,27 @@ def build_chapter(manifest_path: Path, site_root: Path) -> dict:
         for song in manifest["songs"]:
             assets[song["id"]] = _copy_asset(source_root, stage, song["audio"])
             lyrics = extract_lyrics(_safe_source(source_root, song["lyrics_source"]))
+            if lyrics.get("status") != "ok" or lyrics.get("warnings"):
+                raise BuildBlocked(f"lyrics require human OCR/review: {song['id']}")
             song["lyrics_html"] = lyrics["html"]
         for item in manifest["refined"]["items"]:
             assets[item["file"]] = _copy_asset(source_root, stage, item["file"])
-        hero_relative = manifest.get("visual", {}).get("hero", original["cover"])
-        if hero_relative not in assets:
-            assets[hero_relative] = _copy_asset(source_root, stage, hero_relative)
-        share_relative = manifest.get("visual", {}).get("share")
-        if share_relative:
-            assets[share_relative] = _copy_asset(source_root, stage, share_relative)
-            manifest["visual"]["share"] = assets[share_relative]
-        else:
-            manifest["visual"]["share"] = assets[hero_relative]
+        visual = manifest.get("visual", {})
+        hero_relative, share_relative = visual.get("hero"), visual.get("share")
+        if not isinstance(hero_relative, str) or not isinstance(share_relative, str):
+            raise BuildBlocked("confirmed visual.hero and visual.share assets are required")
+        for relative in (hero_relative, share_relative):
+            if relative not in assets:
+                assets[relative] = _copy_asset(source_root, stage, relative)
+        try:
+            with Image.open(_safe_source(source_root, share_relative)) as image:
+                if image.size != (1200, 630):
+                    raise BuildBlocked("share image must be exactly 1200x630")
+        except BuildBlocked:
+            raise
+        except OSError as error:
+            raise BuildBlocked("share image must be a readable 1200x630 image") from error
+        manifest["visual"]["share"] = assets[share_relative]
         original_pages = render_pdf_pages(_safe_source(source_root, original["pdf"]), stage / "assets" / "pages", f"original-{chapter}")
         assets[f"pages:{original['pdf']}"] = [Path(page["path"]).relative_to(stage).as_posix() for page in original_pages]
         for item in manifest["refined"]["items"]:
