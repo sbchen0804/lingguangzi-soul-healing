@@ -1,0 +1,166 @@
+{
+  "chapter": 520,
+  "files": [
+    {
+      "path": "assets/pages/original-520-page-01.png",
+      "size": 1487362,
+      "sha256": "8bad44493da0abff9d1957f09fab73893e368b982b6e54139f2b7db56dee00eb"
+    },
+    {
+      "path": "assets/pages/original-520-page-02.png",
+      "size": 187531,
+      "sha256": "7f405091d8c3a1c05afa36839659aa81ec96370725b11ba2229ffcf6b658db6d"
+    },
+    {
+      "path": "assets/pages/original-520-page-03.png",
+      "size": 172906,
+      "sha256": "603ffbe6e3c289fdd57f1ddb1e9c3fa0d6e68e38597d6deddc4de3c2924029f2"
+    },
+    {
+      "path": "assets/pages/original-520-page-04.png",
+      "size": 172898,
+      "sha256": "ccd1d45106ffc7fc95b160ad0503b9c3fad80badda0113921e0baef6ec480294"
+    },
+    {
+      "path": "assets/pages/original-520-page-05.png",
+      "size": 149452,
+      "sha256": "475f72fa5dac3ec0502c27f804e1d8a9e68b7aaef81d954537018aef27a15aa8"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-01.png",
+      "size": 3185122,
+      "sha256": "c63a4a9e6ad1a0f59ff44649e17f715baa06679d7d30bfa0623de610e1d2d38e"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-02.png",
+      "size": 1776364,
+      "sha256": "9ba3ffc394ffbae96b08c5030ad14166b8c2014afd4e43a36d641b65d1f7808e"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-03.png",
+      "size": 2284488,
+      "sha256": "ea070fd2ef788ec7e635f2a21d1379a2872485140cdfb4d9b2ee985998a4fb9a"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-04.png",
+      "size": 2208478,
+      "sha256": "79db9175790fe674ee9f205ab432d5291332b075a0ec4b86366c64af7520267c"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-05.png",
+      "size": 2007140,
+      "sha256": "96cecd82e90f1b6be3ae940b59f365d27c337af05332c24fdf4dad42b1115f37"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-06.png",
+      "size": 2163572,
+      "sha256": "c7b2eb491c6fe5e3eecf6a9e8582140bebbbe02bc05c8731921062c606e58f7e"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-07.png",
+      "size": 2110844,
+      "sha256": "49e46c811df68971cb88182dc8fde79f67141dfda7a15fb2b3a46abdf99a551d"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-08.png",
+      "size": 2116682,
+      "sha256": "03d9b40bd2dcbbb3e55a0a43b592548149972866fd76254cb2b04dfdf24d2649"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-09.png",
+      "size": 3069478,
+      "sha256": "8a3f96b3c83694f277f8af817fc6d6770f9a5f02ba24f0c25775233ac89ad6fa"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-10.png",
+      "size": 1933718,
+      "sha256": "201fa16cd10a7796c775374c3914cf421b02f5de6b203606be9daba2a33749c3"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-11.png",
+      "size": 1967396,
+      "sha256": "bd14185e06eb00d264c025911f51570b0275f10a7c3556bb81c6ae7434f0572e"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-12.png",
+      "size": 2668227,
+      "sha256": "f16f3ed3347ba39fc707f888a3aa988bdecb309086a5412e3c855838d0a3ed98"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-13.png",
+      "size": 2052076,
+      "sha256": "93fdaa624f86fb1dc9b13636a05922e97ecff5721de8c35e0f90cbe7790bb9d2"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-14.png",
+      "size": 2103552,
+      "sha256": "8b5dbc057464e2b29e7b669dbfc8b09fd2143d085bc9677865f047f9d953dc26"
+    },
+    {
+      "path": "assets/pages/refined-520-2-page-15.png",
+      "size": 609404,
+      "sha256": "67416df21f0d166ec2fc129ecff02e25eaf8a766c74edc59321c735016981fbd"
+    },
+    {
+      "path": "assets/主視覺/hero-520.png",
+      "size": 2257027,
+      "sha256": "c8ccb4d9cc1488ae645f619cf2f620252105f02930a7c60b9cad312c9b0e2efa"
+    },
+    {
+      "path": "assets/主視覺/share-520.png",
+      "size": 1185393,
+      "sha256": "68397b45d8667e0a7a0074db1ab2a0e19ee8e9ffbe021e8be8eb528a6d0c142e"
+    },
+    {
+      "path": "assets/原圖文/讓風穿過心的門.png",
+      "size": 1441322,
+      "sha256": "7c5d6a7da765d66ecc3e76e2616412a67a7c3b6906d17ad53470eaf9c8fa0adf"
+    },
+    {
+      "path": "assets/原圖文/靈魂療癒系列第520章_新詩_讓風穿過心的門_旗艦版_.pdf",
+      "size": 328139,
+      "sha256": "e80cfd3437dc5ee202a0f7c404600f0d3b7cc61e2875f11d4af8550bc0efb733"
+    },
+    {
+      "path": "assets/精煉篇_找回生命的靈魂處方/520_別為明天付利息(PODCAST).m4a",
+      "size": 33808343,
+      "sha256": "04f3a30c8ee3c4f64f74d60260a5d2e925b0a556d593bd01d172ab328e197bb2"
+    },
+    {
+      "path": "assets/精煉篇_找回生命的靈魂處方/520_讓風穿過心的門(影片).mp4",
+      "size": 48264149,
+      "sha256": "d718e608bbab78e331354724472b0cf3872107e5d5d3f3a2c3f389f640de525a"
+    },
+    {
+      "path": "assets/精煉篇_找回生命的靈魂處方/520_讓風穿過心的門(摘要).png",
+      "size": 5092085,
+      "sha256": "e213e889f0b90fbf36a1897505a93bc741c7d6d86c41bc5bde714ab30a08bb3f"
+    },
+    {
+      "path": "assets/精煉篇_找回生命的靈魂處方/520_讓風穿過新的門(簡報).pdf",
+      "size": 15624086,
+      "sha256": "2b0a2dc4702f62de4e3e036f1b242e31e1722897086a7e70520ac7cff52620e6"
+    },
+    {
+      "path": "assets/詩歌創作/讓風穿過心的門.mp3",
+      "size": 7371083,
+      "sha256": "acd37b1679950f5de0049234de54dcdb3320f4c155571d31988e4103bbd2773c"
+    },
+    {
+      "path": "chapter.js",
+      "size": 3370,
+      "sha256": "bd36349de05e847d8c5b59e1af820b6b691ca3bfec37429dab7e564846c6d764"
+    },
+    {
+      "path": "index.html",
+      "size": 12699,
+      "sha256": "345255c0344348660eba3f6c63aa95c82671a37fcbbaf8055c7e6fa77b141ebb"
+    },
+    {
+      "path": "styles.css",
+      "size": 6283,
+      "sha256": "982532c92a10b75bc614176e3891f24aab38afbf44c494c70b1567040ea902f3"
+    }
+  ],
+  "self_included": false
+}

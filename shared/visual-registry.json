@@ -1,0 +1,52 @@
+[
+  {
+    "chapter": 520,
+    "style_family": "contemporary-east-asian-watercolor",
+    "concept": "讓風與憂慮穿過敞開的心門",
+    "composition": "室內向右側敞開木門，紗簾隨風流動，左側保留安靜留白",
+    "palette": [
+      "霧藍",
+      "鼠尾草綠",
+      "暖象牙",
+      "琥珀木色"
+    ],
+    "mood": [
+      "安穩",
+      "釋放",
+      "通透",
+      "希望"
+    ],
+    "distinctive_elements": [
+      "敞開木門",
+      "風動紗簾",
+      "飄動葉片",
+      "室內葉影"
+    ],
+    "lighting": "午後柔和側光",
+    "avoid": [
+      "湖畔",
+      "遠山",
+      "日出地平線",
+      "宗教符號",
+      "醫療器材"
+    ],
+    "hero": "主視覺/hero-520.png",
+    "share": "主視覺/share-520.png"
+  },
+  {
+    "chapter": 521,
+    "concept": "直面死亡而看見今天",
+    "composition": "湖畔遠景與層疊遠山",
+    "palette": [
+      "晨光金",
+      "湖水綠",
+      "象牙白"
+    ],
+    "distinctive_elements": [
+      "湖面",
+      "遠山",
+      "日出"
+    ],
+    "lighting": "清晨日出"
+  }
+]
