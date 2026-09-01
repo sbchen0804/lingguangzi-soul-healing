@@ -22,5 +22,6 @@ description: Scan, validate, build, preview, and prepare publication of 靈魂�
 4. 用 `build_chapter.py` 产生网站；保持 521 已确认的手机字级、初次载入顶端、三圆选项、Go Top、在线 PDF、单一媒体播放与 pagehide 停止。
 5. 用 `qa_report.py` 集中回报。响应式与发布检查依 [QA 与发布边界](references/qa-and-release.md)。问题集中一次提出，不逐项来回询问。
 6. Counter 使用 `site.config.json` 的 GoatCounter 公开站台代码；不得保存密码或 API key。
+7. 每次正式发布后，依 QA 与发布边界明确回报「需要回收版本」或「不需要回收版本」；不得只报告技术提交名称。
 
 仓库中的 Skill 是唯一来源；个人 Skill 安装副本只在验证后同步。
