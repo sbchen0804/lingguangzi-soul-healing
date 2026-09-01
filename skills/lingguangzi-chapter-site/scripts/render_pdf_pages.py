@@ -57,6 +57,8 @@ def render_pdf_pages(pdf: Path, output: Path, prefix: str) -> list[dict]:
         raise ValueError("prefix must be a non-empty filename stem")
     if prefix in {".", ".."} or "/" in prefix or "\\" in prefix:
         raise ValueError("prefix must be a filename stem without path separators")
+    if any(character in '<>:"|?*' for character in prefix):
+        raise ValueError("prefix contains a Windows-forbidden filename character")
     if any(ord(character) < 32 or ord(character) == 127 for character in prefix):
         raise ValueError("prefix contains a control character")
 

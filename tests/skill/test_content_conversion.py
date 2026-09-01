@@ -187,6 +187,17 @@ class PdfRenderTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         render_pdf_pages(self.pdf, output, prefix)
 
+    def test_renderer_rejects_windows_forbidden_filename_characters_before_poppler(self):
+        with TemporaryDirectory() as raw:
+            output = Path(raw) / "pages"
+            with patch.object(render_pdf_pages_module.subprocess, "run") as run:
+                for forbidden in '<>:"|?*':
+                    with self.subTest(forbidden=forbidden):
+                        with self.assertRaises(ValueError):
+                            render_pdf_pages(self.pdf, output, f"safe{forbidden}stem")
+            run.assert_not_called()
+            self.assertFalse(output.exists())
+
     def test_renderer_does_not_overwrite_existing_final_page(self):
         with TemporaryDirectory() as raw:
             output = Path(raw) / "pages"
