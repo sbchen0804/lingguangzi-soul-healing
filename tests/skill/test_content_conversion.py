@@ -179,6 +179,76 @@ class PdfRenderTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "smaller than 100x100"):
                     render_pdf_pages(self.pdf, Path(raw), "original-999")
 
+    def test_renderer_rejects_unsafe_filename_stems(self):
+        with TemporaryDirectory() as raw:
+            output = Path(raw) / "pages"
+            for prefix in ("", ".", "..", "nested/name", "nested\\name", "../escape", r"C:\\escape", "/absolute"):
+                with self.subTest(prefix=prefix):
+                    with self.assertRaises(ValueError):
+                        render_pdf_pages(self.pdf, output, prefix)
+
+    def test_renderer_does_not_overwrite_existing_final_page(self):
+        with TemporaryDirectory() as raw:
+            output = Path(raw) / "pages"
+            output.mkdir()
+            existing = output / "original-999-page-01.png"
+            existing.write_bytes(b"keep")
+            with self.assertRaises(FileExistsError):
+                render_pdf_pages(self.pdf, output, "original-999")
+            self.assertEqual(existing.read_bytes(), b"keep")
+
+    def test_renderer_cleans_all_artifacts_when_a_later_page_is_missing(self):
+        def create_only_first_page(args, **kwargs):
+            Image.new("RGB", (200, 200), "white").save(Path(f"{args[-1]}-1.png"))
+            return subprocess.CompletedProcess(args, 0, "", "")
+
+        with TemporaryDirectory() as raw:
+            source = Path(raw) / "two-pages.pdf"
+            canvas = Canvas(str(source))
+            canvas.drawString(72, 720, "page one")
+            canvas.showPage()
+            canvas.drawString(72, 720, "page two")
+            canvas.save()
+            output = Path(raw) / "pages"
+            unrelated = output / "unrelated.txt"
+            output.mkdir()
+            unrelated.write_text("keep", encoding="utf-8")
+            with patch.object(render_pdf_pages_module.subprocess, "run", side_effect=create_only_first_page):
+                with self.assertRaisesRegex(RuntimeError, "missing rendered PDF page 2"):
+                    render_pdf_pages(source, output, "original-999")
+            self.assertEqual(list(output.iterdir()), [unrelated])
+
+    def test_renderer_cleans_all_artifacts_when_a_later_page_is_corrupt(self):
+        def create_corrupt_second_page(args, **kwargs):
+            Image.new("RGB", (200, 200), "white").save(Path(f"{args[-1]}-1.png"))
+            Path(f"{args[-1]}-2.png").write_bytes(b"not-an-image")
+            return subprocess.CompletedProcess(args, 0, "", "")
+
+        with TemporaryDirectory() as raw:
+            source = Path(raw) / "two-pages.pdf"
+            canvas = Canvas(str(source))
+            canvas.drawString(72, 720, "page one")
+            canvas.showPage()
+            canvas.drawString(72, 720, "page two")
+            canvas.save()
+            output = Path(raw) / "pages"
+            output.mkdir()
+            with patch.object(render_pdf_pages_module.subprocess, "run", side_effect=create_corrupt_second_page):
+                with self.assertRaisesRegex(RuntimeError, "invalid rendered PDF page 2"):
+                    render_pdf_pages(source, output, "original-999")
+            self.assertEqual(list(output.iterdir()), [])
+
+    def test_whitespace_only_pdf_requests_ocr_review(self):
+        with TemporaryDirectory() as raw:
+            source = Path(raw) / "whitespace.pdf"
+            canvas = Canvas(str(source))
+            canvas.drawString(72, 720, "   \t   ")
+            canvas.save()
+            result = extract_lyrics(source)
+            self.assertEqual(result["status"], "requires_ocr")
+            self.assertEqual(result["paragraphs"], [])
+            self.assertEqual(result["html"], "")
+
 
 if __name__ == "__main__":
     unittest.main()
