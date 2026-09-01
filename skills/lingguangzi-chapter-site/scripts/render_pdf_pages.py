@@ -90,8 +90,9 @@ def render_pdf_pages(pdf: Path, output: Path, prefix: str) -> list[dict]:
 
         validated: list[dict] = []
         sources: list[Path] = []
+        source_number_width = len(str(page_count))
         for page_number in range(1, page_count + 1):
-            source = Path(f"{render_prefix}-{page_number}.png")
+            source = Path(f"{render_prefix}-{page_number:0{source_number_width}d}.png")
             if not source.exists():
                 raise RuntimeError(f"missing rendered PDF page {page_number}")
             if source.stat().st_size == 0:

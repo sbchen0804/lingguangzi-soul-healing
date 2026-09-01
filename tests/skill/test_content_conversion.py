@@ -125,6 +125,22 @@ class PdfRenderTests(unittest.TestCase):
             self.assertTrue(all(page["height"] >= 100 for page in pages))
             self.assertTrue(all(Path(page["path"]).is_file() for page in pages))
 
+    def test_rendering_accepts_poppler_zero_padded_source_page_names(self):
+        """Catch the real multi-page break: Poppler emits -01 for a 15-page PDF."""
+        with TemporaryDirectory() as raw:
+            source = Path(raw) / "fifteen-pages.pdf"
+            canvas = Canvas(str(source))
+            for page in range(1, 16):
+                canvas.drawString(72, 720, f"page {page}")
+                canvas.showPage()
+            canvas.save()
+
+            pages = render_pdf_pages(source, Path(raw) / "pages", "refined-520-2")
+
+            self.assertEqual([page["page"] for page in pages], list(range(1, 16)))
+            self.assertEqual(Path(pages[0]["path"]).name, "refined-520-2-page-01.png")
+            self.assertEqual(Path(pages[-1]["path"]).name, "refined-520-2-page-15.png")
+
     def test_pdftoppm_resolution_prefers_path(self):
         path_program = Path(r"C:\tools\pdftoppm.exe")
         with patch.object(render_pdf_pages_module.shutil, "which", return_value=str(path_program)):
