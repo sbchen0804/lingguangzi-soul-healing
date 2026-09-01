@@ -29,6 +29,7 @@ Every supported source path in the inventory must be mapped exactly once by `ori
 - Each song has `id`, `title`, `audio`, `lyrics_source`, and `order`. Song `id` and `order` values must each be unique; add as many songs as needed.
 - `refined` has `title` and `items`. Each refined item has `type`, `role`, `title`, `file`, `order`, and optional `display`. Valid types are `image` (`.png`, `.jpg`, `.jpeg`), `document` (`.pdf`), `audio` (`.mp3`, `.m4a`), and `video` (`.mp4`); type and file extension must agree.
 - `visual` must contain `style_family`, `concept`, `composition`, `palette`, `mood`, `distinctive_elements`, and `avoid` before confirmation. `hero` and `share` are optional at draft/confirmation time but, when present, are mapped local source files. A build requires both; `share` must be a 1200×630 image.
+- `publication_authorization` records the author's permission as `{ "approved": true, "note": "..." }`; it is required by pre-publication QA.
 
 ## Example
 
@@ -49,6 +50,7 @@ Every supported source path in the inventory must be mapped exactly once by `ori
     "palette": ["霧藍", "鼠尾草綠"],
     "mood": ["釋放", "安穩"],
     "distinctive_elements": ["打開的門", "窗簾"],
+    "lighting": "午後柔光",
     "avoid": ["湖面日出"]
   },
   "original": {"cover": "原圖文/cover.png", "pdf": "原圖文/original.pdf"},
@@ -64,6 +66,7 @@ Every supported source path in the inventory must be mapped exactly once by `ori
     ]
   },
   "sharing": {},
+  "publication_authorization": {"approved": true, "note": "作者已同意公开分享"},
   "excluded_files": []
 }
 ```

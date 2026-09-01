@@ -52,4 +52,16 @@
   resume.addEventListener("click", () => activeMedia?.play());
   stop.addEventListener("click", stopAllMedia);
   addEventListener("pagehide", stopAllMedia);
+
+  const counter = document.querySelector("[data-goatcounter]");
+  if (counter && !["localhost", "127.0.0.1"].includes(location.hostname)) {
+    const code = counter.dataset.goatcounter;
+    if (/^[a-z0-9-]+$/i.test(code)) {
+      const script = document.createElement("script");
+      script.async = true;
+      script.dataset.goatcounter = `https://${code}.goatcounter.com/count`;
+      script.src = "https://gc.zgo.at/count.js";
+      document.head.append(script);
+    }
+  }
 })();

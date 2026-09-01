@@ -193,9 +193,11 @@ def render_refined(items: list[dict], assets: dict) -> str:
 
 
 def render_footer(manifest: dict, analytics: dict) -> str:
-    enabled = bool(analytics.get("goatcounter_code")) if isinstance(analytics, dict) else False
+    code = analytics.get("goatcounter_code", "").strip() if isinstance(analytics, dict) and isinstance(analytics.get("goatcounter_code", ""), str) else ""
+    enabled = bool(code)
     counter = '本章瀏覽次數將於正式網站顯示。' if enabled else '本機預覽不計入瀏覽次數。'
-    return f'<footer>原作作者：柯萬盛醫師（筆名靈光子）<br>本系列內容經作者同意公開分享<br>{_text(counter)} 統計僅用於了解閱讀情形。</footer>'
+    hook = f'<span id="chapter-views" data-goatcounter="{_text(code)}">本章瀏覽次數</span>' if enabled else ''
+    return f'<footer>原作作者：柯萬盛醫師（筆名靈光子）<br>本系列內容經作者同意公開分享<br>{_text(counter)} {hook} 統計僅用於了解閱讀情形。</footer>'
 
 
 def _safe_source(root: Path, relative: object) -> Path:
