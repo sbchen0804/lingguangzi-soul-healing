@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+{{head}}
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-chapter="{{chapter}}">
+  <div class="soul-site">
+    <header class="site-header"><a class="brand" href="./">靈魂療癒系列</a><span>第 {{chapter}} 章 · {{title}}</span></header>
+    <main>
+      <section class="hero" aria-labelledby="page-title"><img src="{{hero_url}}" alt="{{hero_alt}}" class="hero-image"><div class="hero-shade"></div><div class="hero-copy"><p class="eyebrow">SOUL HEALING SERIES · CHAPTER {{chapter}}</p><h1 id="page-title">{{title}}</h1><p class="tagline">{{subtitle}}</p></div></section>
+{{entry_nav}}
+{{original}}
+{{songs}}
+{{refined}}
+    </main>
+    <aside class="mini-player" id="mini-player" hidden aria-live="polite"><strong id="mini-player-title">正在播放</strong><button type="button" id="mini-pause">暫停</button><button type="button" id="mini-resume" hidden>繼續</button><button type="button" class="stop" id="mini-stop">停止</button></aside>
+    <a class="go-top" href="{{entry_href}}">↑ Go Top</a>
+{{footer}}
+  </div>
+  <script src="chapter.js"></script>
+</body>
+</html>
