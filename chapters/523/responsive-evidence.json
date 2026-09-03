@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "viewports": [320, 375, 390, 430, 768, 1024, 1280, 1440, 1920],
+  "checks": {
+    "initial_load_at_top": true,
+    "horizontal_overflow": false,
+    "three_reading_options_visible": true,
+    "anchors": {
+      "original": "#original-523",
+      "song": "#song-523",
+      "refined": "#refined-523",
+      "refined_target_reached": true
+    },
+    "go_top": {
+      "fixed_control_visible": true,
+      "returns_to_entry_options": true,
+      "settled_after_ms": 1100
+    },
+    "zoom_200_equivalent": {
+      "reference_viewport_width": 1280,
+      "css_viewport_width": 640,
+      "entries_visible": true,
+      "wisdom_card_within_viewport": true,
+      "go_top_visible": true,
+      "horizontal_overflow": false
+    },
+    "counter": "localhost preview is excluded from GoatCounter"
+  },
+  "wisdom_card": {
+    "source_dimensions": [2752, 1536],
+    "source_ratio": 1.7917,
+    "display_ratio_preserved": true,
+    "no_crop": true,
+    "no_horizontal_overflow": true,
+    "display_width_at_320": 228.125,
+    "display_width_at_1024": 680
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "chapter": 523,
+  "files": [
+    {
+      "path": "assets/pages/original-523-page-01.png",
+      "size": 1244051,
+      "sha256": "ef3647c34e94a406580948c23cdb35a068a7d356c0b177029d380c95ce5680e7"
+    },
+    {
+      "path": "assets/pages/original-523-page-02.png",
+      "size": 212319,
+      "sha256": "89a6f8cf2650b58d99064886bdb0ea825eab3a7dce55ddd80ec88988a4969ef7"
+    },
+    {
+      "path": "assets/pages/original-523-page-03.png",
+      "size": 172836,
+      "sha256": "17bd84e141a7d379ac5723cbcb84ede636eb90a9228e32acfa658aaf47ea8fa5"
+    },
+    {
+      "path": "assets/pages/original-523-page-04.png",
+      "size": 155648,
+      "sha256": "0842a1174759257035f43e3a55ad6a7887c8f6bc1ac243c5c93dce668bb66354"
+    },
+    {
+      "path": "assets/pages/original-523-page-05.png",
+      "size": 78100,
+      "sha256": "ddf6c0cfd46e849a9e9d5272e36d4ab5954be49537ba7e05d67a492b7f052b87"
+    },
+    {
+      "path": "assets/pages/original-523-page-06.png",
+      "size": 189744,
+      "sha256": "24fbb8c87e69ad5f14573bc02fad95c3c0cfd1e31223342f486658a1dcb1d17c"
+    },
+    {
+      "path": "assets/pages/original-523-page-07.png",
+      "size": 52874,
+      "sha256": "87334977fe04f80ba920a638fbcd3b7f1216001580075941959b06a206c8e776"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-01.png",
+      "size": 3748385,
+      "sha256": "5f553d953f57b46ef44cb5c820d18472256ca321445a75d4f9df8ccb3599aeec"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-02.png",
+      "size": 3633144,
+      "sha256": "ca6ba46e12e2441a38631fe395118ac342b1b924f74b073434cd4e62ca153f6b"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-03.png",
+      "size": 3368737,
+      "sha256": "bbf717f7df4f55aa47201c0f88420eda60ce479a41288d63418080ad1fef814d"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-04.png",
+      "size": 3544507,
+      "sha256": "857128ba5e6257583a1cbaabfc707a845145a7d643411720893ad3835484d652"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-05.png",
+      "size": 3671817,
+      "sha256": "40c4778cd7be0a93415b8486aa9645fc2633addfc95f8d0ec7eb84c1af6ce63c"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-06.png",
+      "size": 4301639,
+      "sha256": "77eadf2de8162099df6807b5ac50b21dee140faf9d449bf43d959979713abe03"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-07.png",
+      "size": 4230250,
+      "sha256": "a188f0cc4a5135784f765097e9f8fd6890c11333f6f2f09d39ec29e519445fb5"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-08.png",
+      "size": 3012907,
+      "sha256": "2c5c40a74228711b56f953fcf1249215d0cd0d808a90ee93c5f37e36296fb212"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-09.png",
+      "size": 4144967,
+      "sha256": "8d13d873899d44b087e4a55d2665f9e5a182e900f5da04593790eb9cea9affee"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-10.png",
+      "size": 3881671,
+      "sha256": "6d701ab5a147dd2ab45dcc41067b562b2c83c5b5586e71f1d6a87bf976c601c8"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-11.png",
+      "size": 3148936,
+      "sha256": "9a7cecb0da33c8863c37ff12da235da638f516a254dc4b561d985e1fc7fd1799"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-12.png",
+      "size": 3824653,
+      "sha256": "809cbc72957b8eb5e1477a4a263d81108e8722e440c8a9e0dfecf4bae7feb8ae"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-13.png",
+      "size": 4440123,
+      "sha256": "9ded9ccb57438fa3378b88ff3e8be381ba447897acb281d085f9b5016e1217a2"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-14.png",
+      "size": 3988486,
+      "sha256": "aa6883034b4f66bd49b1b6ac20f9561a3be66bb52f35aade0e90a54f920de268"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-15.png",
+      "size": 3929690,
+      "sha256": "2f0e69f7353ef72a187213e71679c1c4fcb08f86a2b47a98fc215fc4290cca8f"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-16.png",
+      "size": 2848359,
+      "sha256": "3834e86de1053e82dc493cc51739699b11513081fedfcb59b6d6556e39874433"
+    },
+    {
+      "path": "assets/pages/refined-523-2-page-17.png",
+      "size": 1714724,
+      "sha256": "6c6a93d69f606aa884054957fcb55b2edc840a071a4727c2252d1176fcfb86c4"
+    },
+    {
+      "path": "assets/主視覺/hero-523.png",
+      "size": 2556818,
+      "sha256": "be5c81f6a17e4857f0696e7bf12930a8f427eac6f52626fad6d39da20188c826"
+    },
+    {
+      "path": "assets/主視覺/share-523.png",
+      "size": 1826665,
+      "sha256": "0cb6ca5097722926d12bd14fa391e966a19f5efb17d37ce3273405193131e636"
+    },
+    {
+      "path": "assets/原圖文/把翅膀還給天空_.png",
+      "size": 1132237,
+      "sha256": "7f5b66441d2504f89585d97170de348ac7fad6e0d0f80a037595eb29d8230101"
+    },
+    {
+      "path": "assets/原圖文/靈魂療癒系列_523章_新詩_把翅膀還給天空_旗艦版_.pdf",
+      "size": 363041,
+      "sha256": "4ec4ad8fe1ebed4fb09b20d0b63e7d3c4320a1f450450f4410b21b22711050f2"
+    },
+    {
+      "path": "assets/精煉篇_找回生命的靈魂處方/523_把翅膀還給天空.pdf",
+      "size": 25897777,
+      "sha256": "2f8a7d74b04da7f1e2bba9cb7112461a9f9061b6bc9c4f302ad5d330debbba88"
+    },
+    {
+      "path": "assets/精煉篇_找回生命的靈魂處方/523_把翅膀還給天空.png",
+      "size": 5097099,
+      "sha256": "27ae418a6f13ec22eaa0a9ef5a5508c91f540c041f7f6130aba7afab2b6ed0ea"
+    },
+    {
+      "path": "assets/精煉篇_找回生命的靈魂處方/523_把翅膀還給天空：從占有到放手.mp4",
+      "size": 41533628,
+      "sha256": "cc1a5a0559ba16a27494b81ece35f2de43dab49a3c638a5609c2116854390f66"
+    },
+    {
+      "path": "assets/詩歌創作/把翅膀還給天空（故事版）.mp3",
+      "size": 3996732,
+      "sha256": "7b0c60aac2c4c267083c01f678e966524827c066b1e97fd44cbaca6b52bfe218"
+    },
+    {
+      "path": "chapter.js",
+      "size": 4208,
+      "sha256": "ef12b7efca800901fc8367339e92a5fc64996e0b5ef21e2ba6a3313473bd0a6d"
+    },
+    {
+      "path": "index.html",
+      "size": 12507,
+      "sha256": "f8f96cadd2ad1a78f9cfe7d54c5431ed6f1ad45c6b4d25877eb85ce83eba90d9"
+    },
+    {
+      "path": "styles.css",
+      "size": 6489,
+      "sha256": "6fc04c3ce38ab832e83aa9cec5e723fb081d9a120d2773fce41288f066199d4d"
+    }
+  ],
+  "self_included": false
+}
